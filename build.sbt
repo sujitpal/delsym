@@ -26,6 +26,12 @@ libraryDependencies ++= {
     "io.spray"          %% "spray-json"      % "1.2.3",
     "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion,
     "ch.qos.logback"    %  "logback-classic" % "1.0.10",
+    "commons-codec"     %  "commons-codec"   % "1.5",
+    "commons-httpclient" % "commons-httpclient" % "3.1",
+    "org.mongodb"       %% "casbah"          % "2.5.0",
+    "org.apache.tika"   %  "tika-core"       % "1.4",
+    "org.apache.tika"   %  "tika-parsers"    % "1.4",
+    "org.apache.solr"   %  "solr-solrj"      % "4.6.0",
     "com.typesafe.akka" %%  "akka-testkit"   % akkaVersion   % "test",
     "org.scalatest"     %% "scalatest"       % "1.9.1"       % "test"
   )

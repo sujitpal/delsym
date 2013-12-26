@@ -1,23 +1,52 @@
 package com.mycompany.delsym.actors
 
-import akka.actor.ActorLogging
-import akka.actor.Actor
+import com.mycompany.delsym.daos.MongoDbDao
+import com.mycompany.delsym.daos.TikaParser
 import com.typesafe.config.ConfigFactory
+
+import akka.actor.Actor
+import akka.actor.ActorLogging
+import akka.actor.actorRef2Scala
+
 
 class ParseWorker extends Actor with ActorLogging {
 
   val conf = ConfigFactory.load()
-  
+  val mongoDbDao = new MongoDbDao()
+  val parser = new TikaParser()
+
   def receive = {
     case m: Parse => {
-      parse(m.id)
-      sender ! ParseComplete(m.id)
+      parse(m.url)
+      sender ! ParseComplete(m.url)
     }
     case _ => log.info("Unknown message received.")
   }
   
-  def parse(id: String): String = {
-    log.info("TODO: Parsing data for id:{}", id)
-    "TODO"
+  def parse(url: String): Unit = {
+    log.info("Parsing URL: {}", url)
+    try {
+      mongoDbDao.getByUrl(url, List.empty) match {
+        case Right(row) => {
+          if (! row.isEmpty) {
+            val content = row("content").asInstanceOf[String]
+            parser.parse(url, content) match {
+              case Right(textmeta) => {
+                mongoDbDao.insertParsed(
+                    url, textmeta._1, textmeta._2) match {
+                  case Left(f) => log.error(f.msg, f.e)
+                  case _ => {}
+                }
+              }
+              case Left(f) => log.error(f.msg, f.e)
+            }
+          }
+        }
+        case Left(f) => log.error(f.msg, f.e)
+      }
+    } catch {
+      case e: Exception => 
+        log.error("Error parsing URL: {}", url, e)
+    }
   }
 }

@@ -59,7 +59,7 @@ class Controller extends Actor with ActorLogging {
     }
     case m: FetchComplete => {
       decrement("fetchers")
-      parsers ! Parse(m.id)
+      parsers ! Parse(m.url)
     }
     case m: Parse => {
       increment("parsers")
@@ -67,9 +67,9 @@ class Controller extends Actor with ActorLogging {
     }
     case m: ParseComplete => {
       decrement("parsers")
-      outlinks(m.id).map(outlink => 
+      outlinks(m.url).map(outlink => 
         fetchers ! Fetch(outlink._1, outlink._2, outlink._3))
-      indexers ! Index(m.id)
+      indexers ! Index(m.url)
     }
     case m: Index => {
       increment("indexers")

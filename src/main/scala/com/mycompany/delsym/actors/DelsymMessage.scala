@@ -17,12 +17,12 @@ case class Register(ref: ActorRef) extends DelsymMessage
 
 ////////// messages between supervisor and worker //////////
 
-case class Parse(id: String) extends DelsymMessage
+case class Parse(url: String) extends DelsymMessage
 
-case class Index(id: String) extends DelsymMessage
+case class Index(url: String) extends DelsymMessage
 
-case class FetchComplete(id: String) extends DelsymMessage
+case class FetchComplete(url: String) extends DelsymMessage
 
-case class ParseComplete(id: String) extends DelsymMessage
+case class ParseComplete(url: String) extends DelsymMessage
 
-case class IndexComplete(id: String) extends DelsymMessage
+case class IndexComplete(url: String) extends DelsymMessage
