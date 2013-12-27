@@ -3,8 +3,10 @@
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <target>System.out</target>
     <encoder>
+      <pattern>%date{ISO8601} %-5level %logger{36} %X{akkaSource} - %m %ex{full} %n</pattern>
+      <!--<pattern>%date{ISO8601} %-5level %logger{36} %X{sourceThread} - %msg%n</pattern>-->
       <!--<pattern>%date{MM/dd HH:mm:ss} %-6level[%logger{0}]: %msg%n</pattern>-->
-      <pattern>%-6level[%logger{0}]: %msg%n</pattern>
+      <!--<pattern>%-6level[%logger{0}]: %msg%n</pattern>-->
     </encoder>
   </appender>
   <logger name="akka" level="INFO" />

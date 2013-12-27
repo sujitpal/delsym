@@ -1,21 +1,25 @@
 package com.mycompany.delsym.actors
 
 import java.util.Date
-
 import com.mycompany.delsym.daos.HttpFetcher
 import com.mycompany.delsym.daos.MongoDbDao
 import com.typesafe.config.ConfigFactory
-
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.actorRef2Scala
+import com.mycompany.delsym.daos.MockDbDao
+import com.mycompany.delsym.daos.MockHttpFetcher
 
 class FetchWorker extends Actor with ActorLogging {
 
   val conf = ConfigFactory.load()
   
-  val mongoDbDao = new MongoDbDao()
-  val httpFetcher = new HttpFetcher()
+  val testUser = conf.getBoolean("delsym.testuser")
+  val mongoDbDao = if (testUser) new MockDbDao() 
+                   else new MongoDbDao()
+  val httpFetcher = if (testUser) new MockHttpFetcher() 
+                    else new HttpFetcher()
+                    
   
   val refreshInterval = conf.getLong(
     "delsym.fetchers.refreshIntervalDays") * 8640000L
@@ -25,11 +29,11 @@ class FetchWorker extends Actor with ActorLogging {
       if (shouldFetch(m.url)) {
         log.info("Fetching URL: {}", m.url)
         httpFetcher.fetch(m.url) match {
-          case Left(f) => log.error(f.msg, f.e)
+          case Left(f) => log.error(f.e, f.msg)
           case Right(content) => 
             mongoDbDao.insertFetched(
               m.url, m.depth, m.metadata, content) match {
-              case Left(f) => log.error(f.msg, f.e)
+              case Left(f) => log.error(f.e, f.msg)
               case _ => {}
             }
         }
@@ -49,13 +53,8 @@ class FetchWorker extends Actor with ActorLogging {
         url, List("fts")) match {
       case Right(row) => row.getOrElse("fts", current)
                             .asInstanceOf[Long]
-      case Left(f) => log.error(f.msg, f.e); current
+      case Left(f) => log.error(f.e, f.msg); current
     }
     lastFetched + refreshInterval > current
   }
-//  def fetchAndStore(url: String, depth: Int, 
-//      metadata: Map[String,Any]): String = {
-//    log.info("TODO: fetching URL:{} for {}:{}", url, self.path.parent.name, self.path.name)
-//    url
-//  }
 }

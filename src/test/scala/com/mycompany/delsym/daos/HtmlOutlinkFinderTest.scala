@@ -7,23 +7,21 @@ class HtmlOutlinkFinderTest extends FunSuite
                             with BeforeAndAfterAll {
 
   val httpFetcher = new HttpFetcher()
+  val mongoDbDao = new MongoDbDao()
   val outlinkFinder = new HtmlOutlinkFinder()
   
   test("find outlinks from web page") {
-    httpFetcher.fetch("http://sujitpal.blogspot.com") match {
+    val url = "http://sujitpal.blogspot.com"
+    httpFetcher.fetch(url) match {
       case Right(content) =>
-        outlinkFinder.findOutlinks(
-          "http://sujitpal.blogspot.com", content) match {
-          case Right(links) => {
-            Console.println(links)
-            assert(links != null)
-            assert(links.size > 0)
-            assert(links
-              .filter(_.indexOf("sujitpal.blogspot.com") > -1)
-              .size > 0)  
+        mongoDbDao.insertFetched(url, 1, Map.empty, content)
+        outlinkFinder.findOutlinks(url) match {
+          case Right(triples) => {
+            assert(triples != null)
+            assert(triples.size > 0)
+            assert(triples.head._2 == 0)
           }
-          case Left(f) => 
-            Console.println("FAILURE!! " + f.msg, f.e)
+          case _ => {}
         }
       case Left(f) => 
         Console.println("FAILURE!! " + f.msg, f.e)

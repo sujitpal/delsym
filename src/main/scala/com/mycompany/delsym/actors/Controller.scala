@@ -1,9 +1,7 @@
 package com.mycompany.delsym.actors
 
 import scala.concurrent.duration.DurationInt
-
 import com.typesafe.config.ConfigFactory
-
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.OneForOneStrategy
@@ -11,6 +9,8 @@ import akka.actor.Props
 import akka.actor.SupervisorStrategy
 import akka.actor.actorRef2Scala
 import akka.routing.RoundRobinRouter
+import com.mycompany.delsym.daos.MockOutlinkFinder
+import com.mycompany.delsym.daos.HtmlOutlinkFinder
 
 class Controller extends Actor with ActorLogging {
 
@@ -26,6 +26,11 @@ class Controller extends Actor with ActorLogging {
   val numFetchers = config.getInt("delsym.fetchers.numworkers")
   val numParsers = config.getInt("delsym.parsers.numworkers")
   val numIndexers = config.getInt("delsym.indexers.numworkers")
+  
+  val testUser = config.getBoolean("delsym.testuser")
+  val outlinkFinder = if (testUser) new MockOutlinkFinder()
+                      else new HtmlOutlinkFinder()
+  
   val queueSizes = scala.collection.mutable.Map[String,Int]()
   
   val restartChild = OneForOneStrategy() {
@@ -85,10 +90,9 @@ class Controller extends Actor with ActorLogging {
   
   def queueSize(): Stats = Stats(queueSizes.toMap)
   
-  def outlinks(id: String): 
+  def outlinks(url: String): 
       List[(String,Int,Map[String,Any])] = {
-    log.info("TODO: Fetch outlinks for id:{}", id)
-    List()
+    null
   }
   
   def increment(key: String): Unit = {
