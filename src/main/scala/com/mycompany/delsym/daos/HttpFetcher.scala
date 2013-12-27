@@ -36,7 +36,7 @@ class HttpFetcher extends BaseHttpFetcher {
         Left(FailResult("Fetch of [%s] failed, protocol violation"
         .format(url), e)) 
       case e: IOException => 
-        Left(FailResult("Fetch of {} failed, transport error"
+        Left(FailResult("Fetch of [%s] failed, transport error"
         .format(url), e))
     } finally {
       getmethod.releaseConnection()
