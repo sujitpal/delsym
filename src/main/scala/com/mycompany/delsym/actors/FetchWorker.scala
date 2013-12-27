@@ -37,8 +37,8 @@ class FetchWorker extends Actor with ActorLogging {
               case _ => {}
             }
         }
-      }
-      sender ! FetchComplete(m.url)
+        sender ! FetchComplete(m.url, true)
+      } else sender ! FetchComplete(m.url, false)
     }
     case _ => log.info("Unknown message.")
   }

@@ -21,8 +21,8 @@ case class Parse(url: String) extends DelsymMessage
 
 case class Index(url: String) extends DelsymMessage
 
-case class FetchComplete(url: String) extends DelsymMessage
+case class FetchComplete(url: String, fwd: Boolean) extends DelsymMessage
 
-case class ParseComplete(url: String) extends DelsymMessage
+case class ParseComplete(url: String, fwd: Boolean) extends DelsymMessage
 
-case class IndexComplete(url: String) extends DelsymMessage
+case class IndexComplete(url: String, fwd: Boolean) extends DelsymMessage

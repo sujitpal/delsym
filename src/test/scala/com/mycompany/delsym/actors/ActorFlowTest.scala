@@ -23,7 +23,8 @@ class ActorFlowTest(sys: ActorSystem)
   test("test message flow across actors") {
     val controller = 
       system.actorOf(Props[Controller], "controller")
-    (0 until 10).foreach(i => {
+    val numMessages = 10
+    (0 until numMessages).foreach(i => {
       controller ! Fetch(i.toString, 0, Map())
     })
     controller ! Stop
@@ -36,12 +37,12 @@ class ActorFlowTest(sys: ActorSystem)
       MockCounters.dbParsed.longValue(),
       MockCounters.dbIndexed.longValue(),
       MockCounters.outlinkCalled.longValue()))
-    assert(MockCounters.fetched.longValue() == 10L)
-    assert(MockCounters.parsed.longValue() == 10L)
-    assert(MockCounters.indexed.longValue() == 10L)
-    assert(MockCounters.dbFetched.longValue() == 10L)
-    assert(MockCounters.dbParsed.longValue() == 10L)
-    assert(MockCounters.dbIndexed.longValue() == 10L)
-    assert(MockCounters.outlinkCalled.longValue() == 10L)
+    assert(MockCounters.fetched.longValue() == numMessages)
+    assert(MockCounters.parsed.longValue() == numMessages)
+    assert(MockCounters.indexed.longValue() == numMessages)
+    assert(MockCounters.dbFetched.longValue() == numMessages)
+    assert(MockCounters.dbParsed.longValue() == numMessages)
+    assert(MockCounters.dbIndexed.longValue() == numMessages)
+    assert(MockCounters.outlinkCalled.longValue() == numMessages)
   }
 }

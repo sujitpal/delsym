@@ -23,7 +23,7 @@ class ParseWorker extends Actor with ActorLogging {
   def receive = {
     case m: Parse => {
       parse(m.url)
-      sender ! ParseComplete(m.url)
+      sender ! ParseComplete(m.url, true)
     }
     case _ => log.info("Unknown message received.")
   }

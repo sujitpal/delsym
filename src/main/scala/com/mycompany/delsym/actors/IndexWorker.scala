@@ -24,7 +24,7 @@ class IndexWorker extends Actor with ActorLogging {
   def receive = {
     case m: Index => {
       index(m.url)
-      sender ! IndexComplete(m.url)
+      sender ! IndexComplete(m.url, true)
     }
     case _ => log.info("Unknown message received.")
   }
