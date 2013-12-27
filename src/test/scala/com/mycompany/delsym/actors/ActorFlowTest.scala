@@ -10,6 +10,7 @@ import java.util.EmptyStackException
 import akka.actor.Props
 import com.mycompany.delsym.daos.MockCounters
 import akka.actor.Actor
+import com.typesafe.config.ConfigFactory
 
 class ActorFlowTest(sys: ActorSystem) 
     extends TestKit(sys) 
@@ -27,12 +28,20 @@ class ActorFlowTest(sys: ActorSystem)
     })
     controller ! Stop
     system.awaitTermination
+    Console.println("Counters=" + List(
+      MockCounters.fetched.longValue(),
+      MockCounters.parsed.longValue(),
+      MockCounters.indexed.longValue(),
+      MockCounters.dbFetched.longValue(),
+      MockCounters.dbParsed.longValue(),
+      MockCounters.dbIndexed.longValue(),
+      MockCounters.outlinkCalled.longValue()))
     assert(MockCounters.fetched.longValue() == 10L)
     assert(MockCounters.parsed.longValue() == 10L)
     assert(MockCounters.indexed.longValue() == 10L)
     assert(MockCounters.dbFetched.longValue() == 10L)
     assert(MockCounters.dbParsed.longValue() == 10L)
     assert(MockCounters.dbIndexed.longValue() == 10L)
-    assert(MockCounters.outlinkCalled.longValue() == 0L)
+    assert(MockCounters.outlinkCalled.longValue() == 10L)
   }
 }

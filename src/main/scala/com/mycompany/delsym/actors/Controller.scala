@@ -92,7 +92,10 @@ class Controller extends Actor with ActorLogging {
   
   def outlinks(url: String): 
       List[(String,Int,Map[String,Any])] = {
-    null
+    outlinkFinder.findOutlinks(url) match {
+      case Right(triples) => triples
+      case Left(f) => List.empty
+    }
   }
   
   def increment(key: String): Unit = {
