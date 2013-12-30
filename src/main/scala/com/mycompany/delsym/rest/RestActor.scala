@@ -31,8 +31,6 @@ class RestActor extends Actor with HttpServiceActor {
   val controller = context.actorOf(Props[Controller], 
     "controller")
   
-  def stop() = controller ! Stop
-  
   def receive = runRoute {
     (get & path("stats")) {
       jsonpWithParameter("callback") {
