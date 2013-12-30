@@ -18,18 +18,21 @@ import akka.actor.actorRef2Scala
 import akka.pattern.ask
 import akka.util.Timeout
 import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
+import spray.httpx.marshalling.ToResponseMarshallable.isMarshallable
 import spray.json.pimpAny
 import spray.routing.Directive.pimpApply
-import spray.routing.HttpServiceActor
+import spray.routing.HttpService
 
-class RestActor extends Actor with HttpServiceActor {
+class RestActor extends Actor with RestService {
 
   val conf = ConfigFactory.load()
   implicit val timeout = Timeout(
     conf.getInt("delsym.rest.timeout").seconds)
 
-  val controller = context.actorOf(Props[Controller], 
-    "controller")
+  val controller = actorRefFactory.actorOf(
+    Props[Controller], "controller")
+
+  def actorRefFactory = context
   
   def receive = runRoute {
     (get & path("stats")) {
@@ -82,6 +85,12 @@ class RestActor extends Actor with HttpServiceActor {
         controller ! Stop(0)
         "Stop signal sent"
       }
-    }
+    }    
   }
+}
+
+trait RestService extends HttpService {
+
+  implicit def executionContext = 
+    actorRefFactory.dispatcher
 }
