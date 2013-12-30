@@ -18,19 +18,22 @@ To test out the system, run the following commands to download DELSYM and run th
 
     git clone https://github.com/sujitpal/delsym.git
     cd delsym
+    cd src/main/resources
+    ln -s application.mock application.conf
+    cd -
     sbt run
 
 From another terminal, issue the following commands to see the queue sizes:
 
     curl localhost:8080/stats
 
-Or to send a fetch request (the pipeline is currently configured with mock actors which don't require any of the dependencies listed below):
+Or to send a fetch request:
 
     curl -X PUT -H "Content-Type: application/json" \
         -d '{"url":"http://www.foo.com/bar", "depth":0, "metadata":{}}' \
         http://localhost:8080/fetch
 
-In production mode, the pipeline expects to find a MongoDB instance and a Solr instance. They are configured using the [application.conf](src/main/resources/application.conf) file. Please set testuser=false for production use.
+The pipeline is currently running using Mock actors (using [application.conf.mock](src/main/resources/application.conf.mock) so all these commands do is to activate actors that write their actions to the log and update some internal counters. In production mode, the pipeline expects to find a MongoDB instance and a Solr instance. Please relink application.conf from [application.conf.local](src/main/resources/application.conf.local) for local mode and [application.conf.remote](src/main/resources/application.conf.remote) for remote mode operation.
 
 The MongoDB database and collection must also be created prior to use, as well as the unique index on the URL field. Use the following commands in the mongo shell to do so.
 
