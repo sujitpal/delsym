@@ -1,12 +1,11 @@
 package com.mycompany.delsym.rest
 
-import com.mycompany.delsym.actors.Stop
 import com.typesafe.config.ConfigFactory
+
 import akka.actor.Props
 import akka.actor.actorRef2Scala
 import spray.can.server.SprayCanHttpServerApp
-import spray.http.HttpRequest
-import spray.httpx.RequestBuilding._
+import spray.httpx.RequestBuilding.Get
 
 object Main extends App with SprayCanHttpServerApp {
  

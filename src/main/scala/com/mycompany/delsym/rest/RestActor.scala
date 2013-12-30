@@ -2,13 +2,16 @@ package com.mycompany.delsym.rest
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
+
 import com.mycompany.delsym.actors.Controller
 import com.mycompany.delsym.actors.Fetch
 import com.mycompany.delsym.actors.Index
 import com.mycompany.delsym.actors.MessageProtocol
 import com.mycompany.delsym.actors.Parse
 import com.mycompany.delsym.actors.Stats
+import com.mycompany.delsym.actors.Stop
 import com.typesafe.config.ConfigFactory
+
 import akka.actor.Actor
 import akka.actor.Props
 import akka.actor.actorRef2Scala
@@ -16,15 +19,10 @@ import akka.pattern.ask
 import akka.util.Timeout
 import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
 import spray.json.pimpAny
+import spray.routing.Directive.pimpApply
 import spray.routing.HttpServiceActor
-import spray.routing._
-import Directives._
-import scala.concurrent.duration._
-import com.mycompany.delsym.actors.Stop
-import spray.http.HttpResponse
 
-class RestActor extends Actor 
-                with HttpServiceActor {
+class RestActor extends Actor with HttpServiceActor {
 
   val conf = ConfigFactory.load()
   implicit val timeout = Timeout(
