@@ -83,15 +83,19 @@ class Controller extends Actor with ActorLogging {
     case m: IndexComplete => {
       decrement("indexers")
     }
-    case m: Stats => sender ! queueSize()
-    case Stop => reaper ! Stop
+    case m: Stats => {
+      sender ! queueSize()
+    }
+    case m: Stop => {
+      reaper ! Stop
+    }
     case _ => log.info("Unknown message received.")
   }
   
   def queueSize(): Stats = Stats(queueSizes.toMap)
   
   def outlinks(url: String): 
-      List[(String,Int,Map[String,Any])] = {
+      List[(String,Int,Map[String,String])] = {
     outlinkFinder.findOutlinks(url) match {
       case Right(triples) => triples
       case Left(f) => List.empty

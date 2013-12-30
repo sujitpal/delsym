@@ -32,7 +32,7 @@ abstract class BaseParser extends BaseDao {
 
 abstract class BaseOutlinkFinder extends BaseDao {
   def findOutlinks(url: String): 
-    Either[FailResult,List[(String,Int,Map[String,Any])]]
+    Either[FailResult,List[(String,Int,Map[String,String])]]
 }
 
 abstract class BaseSolrPublisher extends BaseDao {
@@ -104,7 +104,8 @@ class MockParser extends BaseParser {
 
 class MockOutlinkFinder extends BaseOutlinkFinder { 
   def findOutlinks(url: String): 
-      Either[FailResult,List[(String,Int,Map[String,Any])]] = {
+      Either[FailResult,
+      List[(String,Int,Map[String,String])]] = {
     MockCounters.outlinkCalled.incrementAndGet()
     Right(List.empty)
   }

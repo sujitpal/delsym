@@ -14,7 +14,8 @@ class HtmlOutlinkFinder extends BaseOutlinkFinder {
                    else new MongoDbDao()
                    
   override def findOutlinks(url: String):
-      Either[FailResult,List[(String,Int,Map[String,Any])]] = {
+      Either[FailResult,
+      List[(String,Int,Map[String,String])]] = {
     try {
       mongoDbDao.getByUrl(url, List.empty) match {
         case Right(row) => { 
@@ -24,7 +25,7 @@ class HtmlOutlinkFinder extends BaseOutlinkFinder {
                            .asInstanceOf[Int]
             val fetchMeta = row.keys
               .filter(k => ! k.startsWith("f_"))
-              .map(k => (k, row(k)))
+              .map(k => (k, row(k).asInstanceOf[String]))
               .toMap
             if (depth > 0) {
               val matcher = OutlinkPattern.matcher(content)
