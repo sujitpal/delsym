@@ -18,7 +18,7 @@ class Reaper extends Actor with ActorLogging {
       context.watch(ref)
       refs += ref
     }
-    case Stop => {
+    case Stop(_) => {
       refs.head ! Broadcast(PoisonPill)
     }
     case Terminated(ref) => {

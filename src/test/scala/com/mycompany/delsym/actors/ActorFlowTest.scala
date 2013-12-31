@@ -27,7 +27,7 @@ class ActorFlowTest(sys: ActorSystem)
     (0 until numMessages).foreach(i => {
       controller ! Fetch(i.toString, 0, Map())
     })
-    controller ! Stop
+    controller ! Stop(0)
     system.awaitTermination
     Console.println("Counters=" + List(
       MockCounters.fetched.longValue(),

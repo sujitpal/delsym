@@ -11,6 +11,9 @@ import akka.actor.actorRef2Scala
 import akka.routing.RoundRobinRouter
 import com.mycompany.delsym.daos.MockOutlinkFinder
 import com.mycompany.delsym.daos.HtmlOutlinkFinder
+import akka.routing.FromConfig
+import akka.actor.ActorRef
+import akka.routing.Router
 
 class Controller extends Actor with ActorLogging {
 
@@ -33,30 +36,24 @@ class Controller extends Actor with ActorLogging {
   
   val queueSizes = scala.collection.mutable.Map[String,Int]()
   
-  val restartChild = OneForOneStrategy() {
-    case e: Exception => SupervisorStrategy.Restart
-  }
   val fetchers = context.actorOf(Props[FetchWorker]
-    .withRouter(RoundRobinRouter(nrOfInstances=numFetchers, 
-    supervisorStrategy=restartChild)), 
+    .withRouter(RoundRobinRouter(nrOfInstances=numFetchers)), 
     name="fetchers")
   reaper ! Register(fetchers)
   queueSizes += (("fetchers", 0))
   
   val parsers = context.actorOf(Props[ParseWorker]
-    .withRouter(RoundRobinRouter(nrOfInstances=numParsers, 
-    supervisorStrategy=restartChild)), 
+    .withRouter(RoundRobinRouter(nrOfInstances=numParsers)), 
     name="parsers")
   reaper ! Register(parsers)
   queueSizes += (("parsers", 0))
   
   val indexers = context.actorOf(Props[IndexWorker]
-    .withRouter(RoundRobinRouter(nrOfInstances=numIndexers,
-    supervisorStrategy=restartChild)),
+    .withRouter(RoundRobinRouter(nrOfInstances=numIndexers)),
     name="indexers")
   reaper ! Register(indexers)
   queueSizes += (("indexers", 0))
-    
+
   def receive = {
     case m: Fetch => {
       increment("fetchers")
@@ -87,7 +84,7 @@ class Controller extends Actor with ActorLogging {
       sender ! queueSize()
     }
     case m: Stop => {
-      reaper ! Stop
+      reaper ! Stop(0)
     }
     case _ => log.info("Unknown message received.")
   }
