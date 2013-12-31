@@ -1,7 +1,24 @@
 akka {
   loglevel = INFO
   stdout-loglevel = INFO
-  event-handlers = ["akka.event.slf4j.Slf4jEventHandler"]
+  akka.loggers = ["akka.event.slf4j.Slf4jLogger"]
+  log-dead-letters-during-shutdown = off
+  actor {
+    provider = "akka.remote.RemoteActorRefProvider"
+    remote {
+      enabled-transports = ["akka.remote.netty.tcp"]
+      netty.tcp {
+        hostname = "127.0.0.1"
+        port = 2552
+      }
+    }
+    serializers {
+      java = "akka.serialization.JavaSerializer"
+    }
+    serialization-bindings {
+      "com.mycompany.delsym.actors.DelsymMessage" = java
+    }
+  }
 }
 
 spray {
@@ -13,32 +30,35 @@ spray {
 }
 
 delsym {
-  testuser = false
+  testuser = true
   fetchers {
     numworkers = 5
     refreshIntervalDays = 30
     numRetries = 3
+    nodes = ["akka.tcp://remote@127.0.0.1:2553"]
   }
   parsers {
     numworkers = 5
+    nodes = ["akka.tcp://remote@127.0.0.1:2553"]
   }
   indexers {
     numworkers = 5
+    nodes = ["akka.tcp://remote@127.0.0.1:2553"]
   }
   mongodb {
-    host = "localhost"
+    host = "127.0.0.1"
     port = 27017
     dbname = "delsymdb"
     collname = "documents"
   }
   solr {
-    server = "http://localhost:8983/solr/collection1/"
+    server = "http://127.0.0.1:8983/solr/collection1/"
     dbfieldnames = "_id,url,p_title,p_author,textContent"
     solrfieldnames = "id,url,title,author,text"
     commitInterval = 10
   }
   rest {
-    host = "localhost"
+    host = "127.0.0.1"
     port = 8080
     timeout = 1
   }

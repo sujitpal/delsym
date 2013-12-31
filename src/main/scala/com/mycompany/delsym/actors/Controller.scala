@@ -1,19 +1,23 @@
 package com.mycompany.delsym.actors
 
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.DurationInt
+
+import com.mycompany.delsym.daos.HtmlOutlinkFinder
+import com.mycompany.delsym.daos.MockOutlinkFinder
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigList
+
 import akka.actor.Actor
 import akka.actor.ActorLogging
+import akka.actor.AddressFromURIString
 import akka.actor.OneForOneStrategy
 import akka.actor.Props
 import akka.actor.SupervisorStrategy
 import akka.actor.actorRef2Scala
+import akka.remote.routing.RemoteRouterConfig
 import akka.routing.RoundRobinRouter
-import com.mycompany.delsym.daos.MockOutlinkFinder
-import com.mycompany.delsym.daos.HtmlOutlinkFinder
-import akka.routing.FromConfig
-import akka.actor.ActorRef
-import akka.routing.Router
+import akka.routing.RouterConfig
 
 class Controller extends Actor with ActorLogging {
 
@@ -25,34 +29,39 @@ class Controller extends Actor with ActorLogging {
   
   val reaper = context.actorOf(Props[Reaper], name="reaper")
 
-  val config = ConfigFactory.load()
-  val numFetchers = config.getInt("delsym.fetchers.numworkers")
-  val numParsers = config.getInt("delsym.parsers.numworkers")
-  val numIndexers = config.getInt("delsym.indexers.numworkers")
+  val conf = ConfigFactory.load()
+  val numFetchers = conf.getInt("delsym.fetchers.numworkers")
+  val fetchNodes = conf.getList("delsym.fetchers.nodes")
   
-  val testUser = config.getBoolean("delsym.testuser")
+  val numParsers = conf.getInt("delsym.parsers.numworkers")
+  val parseNodes = conf.getList("delsym.parsers.nodes")
+  
+  val numIndexers = conf.getInt("delsym.indexers.numworkers")
+  val indexNodes = conf.getList("delsym.indexers.nodes")
+  
+  val testUser = conf.getBoolean("delsym.testuser")
   val outlinkFinder = if (testUser) new MockOutlinkFinder()
                       else new HtmlOutlinkFinder()
   
-  val queueSizes = scala.collection.mutable.Map[String,Int]()
+  val queueSizes = scala.collection.mutable.Map[String,Long]()
   
   val fetchers = context.actorOf(Props[FetchWorker]
-    .withRouter(RoundRobinRouter(nrOfInstances=numFetchers)), 
+    .withRouter(buildRouter(numFetchers, fetchNodes)), 
     name="fetchers")
   reaper ! Register(fetchers)
-  queueSizes += (("fetchers", 0))
-  
+  queueSizes += (("fetchers", 0L))
+
   val parsers = context.actorOf(Props[ParseWorker]
-    .withRouter(RoundRobinRouter(nrOfInstances=numParsers)), 
+    .withRouter(buildRouter(numParsers, parseNodes)), 
     name="parsers")
   reaper ! Register(parsers)
-  queueSizes += (("parsers", 0))
+  queueSizes += (("parsers", 0L))
   
   val indexers = context.actorOf(Props[IndexWorker]
-    .withRouter(RoundRobinRouter(nrOfInstances=numIndexers)),
+    .withRouter(buildRouter(numIndexers, indexNodes)),
     name="indexers")
   reaper ! Register(indexers)
-  queueSizes += (("indexers", 0))
+  queueSizes += (("indexers", 0L))
 
   def receive = {
     case m: Fetch => {
@@ -87,6 +96,17 @@ class Controller extends Actor with ActorLogging {
       reaper ! Stop(0)
     }
     case _ => log.info("Unknown message received.")
+  }
+  
+  def buildRouter(n: Int, nodes: ConfigList): RouterConfig = {
+    if (nodes.isEmpty) RoundRobinRouter(n)
+    else {
+      val addrs = nodes.unwrapped()
+        .map(node => node.asInstanceOf[String])
+        .map(node => AddressFromURIString(node))
+        .toSeq
+      RemoteRouterConfig(RoundRobinRouter(n), addrs)
+    }
   }
   
   def queueSize(): Stats = Stats(queueSizes.toMap)

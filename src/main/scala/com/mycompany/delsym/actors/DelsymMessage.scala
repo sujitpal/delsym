@@ -11,7 +11,7 @@ sealed trait DelsymMessage
 case class Fetch(url: String, depth: Int, 
   metadata: Map[String,String]) extends DelsymMessage
   
-case class Stats(stats: Map[String,Int]) extends DelsymMessage
+case class Stats(stats: Map[String,Long]) extends DelsymMessage
 
 case class Stop(x: Int) extends DelsymMessage
 

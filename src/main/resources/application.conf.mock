@@ -1,7 +1,7 @@
 akka {
   loglevel = INFO
   stdout-loglevel = INFO
-  event-handlers = ["akka.event.slf4j.Slf4jEventHandler"]
+  akka.loggers = ["akka.event.slf4j.Slf4jLogger"]
 }
 
 spray {
@@ -16,14 +16,17 @@ delsym {
   testuser = true
   fetchers {
     numworkers = 5
+    nodes = []
     refreshIntervalDays = 30
     numRetries = 3
   }
   parsers {
     numworkers = 5
+    nodes = []
   }
   indexers {
     numworkers = 5
+    nodes = []
   }
   mongodb {
     host = "localhost"
