@@ -21,7 +21,7 @@ To test out the system, run the following commands to download DELSYM and run th
     cd src/main/resources
     ln -s application.mock application.conf
     cd -
-    sbt run
+    sbt "run-main com.mycompany.delsym.rest.Main"
 
 From another terminal, issue the following commands to see the queue sizes:
 
@@ -42,9 +42,23 @@ The MongoDB database and collection must also be created prior to use, as well a
 
 The schema.xml for the Solr (4.6) example application already contains all the fields that are necessary for the pipeline to work with existing components. However, if you want to add different fields, make sure that your solrfieldnames and dbfieldnames in application.conf and your Solr schema.xml are updated accordingly.
 
+Akka allows us to create applications that are distributed by design, so one way to scale out this application across multiple nodes is to give the worker actors their own (cluster of) nodes. To do this we need to create remote Akka ActorSystems on remote machines (configurable from [remote.conf](src/main/resources/remote.conf)) onto which the routers from the master node (configured by [application.conf.remote](src/main/resources/application.conf.remote) creates workers. To start up a remote Akka ActorSystem named remote listening on localhost:2553, run the following command:
+
+    sbt "run-main com.mycompany.delsym.remote.RemoteAkka remote"
+
+On another terminal, setup and run the master node. This starts up an ActorSystem named Delsym on localhost:2552. The master node (as before) also exposes a JSON/HTTP REST interface on localhost:8080.
+
+    cd src/main/resources
+    ln -s application.conf.remote application.conf
+    sbt "run-main com.mycompany.delsym.rest.Main"
+
+From yet another terminal, feed it the GET and PUT commands using cURL as before. You will see log messages on the remote Akka ActorSystem (localhost:2553) indicating that the work of fetching, parsing and indexing is occurring on that. Currently, remote mode uses the Mock actors (set testuser=false in application.conf.remote to change that) so its not doing anything useful.
+
 A slightly more verbose perspective can be found in my blog posts, which I wrote as I was developing the pipeline.
 
 * [Akka Content Ingestion Pipeline, Part I](http://sujitpal.blogspot.com/2013/12/akka-content-ingestion-pipeline-part-i.html)
 * [Akka Content Ingestion Pipeline, Part II](http://sujitpal.blogspot.com/2013/12/akka-content-ingestion-pipeline-part-ii.html)
 * [Akka Content Ingestion Pipeline, Part III](http://sujitpal.blogspot.com/2013/12/akka-content-ingestion-pipeline-part.html)
+* [Akka Content Ingestion Pipeline, Part IV](http://sujitpal.blogspot.com/2014/01/akka-content-ingestion-pipeline-part-iv.html)
+
 
