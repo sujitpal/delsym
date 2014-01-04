@@ -92,5 +92,6 @@ A slightly more verbose perspective can be found in my blog posts, which I wrote
 * [Akka Content Ingestion Pipeline, Part II](http://sujitpal.blogspot.com/2013/12/akka-content-ingestion-pipeline-part-ii.html)
 * [Akka Content Ingestion Pipeline, Part III](http://sujitpal.blogspot.com/2013/12/akka-content-ingestion-pipeline-part.html)
 * [Akka Content Ingestion Pipeline, Part IV](http://sujitpal.blogspot.com/2014/01/akka-content-ingestion-pipeline-part-iv.html)
+* [Akka Content Ingestion Pipeline, Part V](http://sujitpal.blogspot.com/2014/01/akka-content-ingestion-pipeline-part-v.html)
 
 
