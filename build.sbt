@@ -30,6 +30,7 @@ libraryDependencies ++= {
     "commons-codec"     %  "commons-codec"   % "1.5",
     "commons-httpclient" % "commons-httpclient" % "3.1",
     "org.mongodb"       %% "casbah"          % "2.5.0",
+    "com.datastax.cassandra" % "cassandra-driver-core" % "2.0.0-rc2",
     "org.apache.tika"   %  "tika-core"       % "1.4",
     "org.apache.tika"   %  "tika-parsers"    % "1.4",
     "org.apache.solr"   %  "solr-solrj"      % "4.6.0",

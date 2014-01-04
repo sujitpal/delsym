@@ -34,6 +34,11 @@ delsym {
     dbname = "delsymdb"
     collname = "documents"
   }
+  cassandradb {
+    host = "127.0.0.1"
+    dbname = "delsymdb"
+    collname = "documents"
+  }
   solr {
     server = "http://localhost:8983/solr/collection1/"
     dbfieldnames = "_id,url,p_title,p_author,textContent"
